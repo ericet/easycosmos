@@ -127,9 +127,11 @@ break
 
 
 "查看节点同步状态")
-echo -e "返回状态为false时，代表同步成功"
-echo -e "也可以通过https://telemetry.subspace.network/#list/0x43d10ffd50990380ffe6c9392145431d630ae67e89dbc9c014cac2a417759101 查看同步状态"
-curl -s -X POST http://localhost:9933 -H "Content-Type: application/json" --data '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' | jq .result.isSyncing
+echo "============================================================"
+echo "节点状态为false时，代表同步成功"
+echo "也可以通过https://telemetry.subspace.network/#list/0x43d10ffd50990380ffe6c9392145431d630ae67e89dbc9c014cac2a417759101 查看同步状态"
+echo "============================================================"
+echo "节点状态 = $(curl -s -X POST http://localhost:9933 -H "Content-Type: application/json" --data '{"id":1, "jsonrpc":"2.0", "method": "system_health", "params":[]}' | jq .result.isSyncing)"
 break
 ;;
 
