@@ -90,9 +90,9 @@ make install
 
 ollod init $OLLONODE --chain-id $OLLOCHAIN
 
-ollod tendermint unsafe-reset-all --home $HOME/.ollod
-rm $HOME/.ollod/config/genesis.json
-wget -O $HOME/.ollod/config/genesis.json "https://raw.githubusercontent.com/OllO-Station/ollo/master/networks/ollo-testnet-0/genesis.json"
+ollod tendermint unsafe-reset-all --home $HOME/.ollo
+rm $HOME/.ollo/config/genesis.json
+wget -O $HOME/.ollo/config/genesis.json "https://raw.githubusercontent.com/OllO-Station/ollo/master/networks/ollo-testnet-0/genesis.json"
 
 # config pruning
 indexer="null"
@@ -101,16 +101,16 @@ pruning_keep_recent="100"
 pruning_keep_every="0"
 pruning_interval="10"
 
-sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.ollod/config/config.toml
-sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.ollod/config/app.toml
-sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.ollod/config/app.toml
-sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.ollod/config/app.toml
-sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.ollod/config/app.toml
+sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.ollo/config/config.toml
+sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.ollo/config/app.toml
+sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.ollo/config/app.toml
+sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.ollo/config/app.toml
+sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.ollo/config/app.toml
 
-wget -O $HOME/.ollod/config/addrbook.json "https://raw.githubusercontent.com/OllO-Station/ollo/master/networks/ollo-testnet-0/addrbook.json"
+wget -O $HOME/.ollo/config/addrbook.json "https://raw.githubusercontent.com/OllO-Station/ollo/master/networks/ollo-testnet-0/addrbook.json"
 SEEDS=""
 PEERS="06658ccd5c119578fb662633234a2ef154881b94@18.144.61.148"; \
-sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.ollod/config/config.toml
+sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.ollo/config/config.toml
 SNAP_RPC="http://ollo.stake-take.com:16657"
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
 BLOCK_HEIGHT=$((LATEST_HEIGHT - 2000)); \
@@ -120,7 +120,7 @@ sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ; \
 s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$SNAP_RPC,$SNAP_RPC\"| ; \
 s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
 s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
-s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.ollod/config/config.toml
+s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.ollo/config/config.toml
 sudo systemctl restart ollod && journalctl -u ollod -f -o cat
 
 
@@ -191,7 +191,7 @@ echo "节点状态 = $(curl -s localhost:26657/status)"
 echo "============================================================"
                
 ollod tx staking create-validator \
-  --amount 1000000usei \
+  --amount 1000000utollo \
   --from $OLLOWALLET \
   --commission-max-change-rate "0.05" \
   --commission-max-rate "0.20" \
@@ -241,7 +241,7 @@ break
 systemctl stop ollod
 systemctl disable ollod
 rm /etc/systemd/system/ollod.service
-rm -r .ollod
+rm -r .ollo
 break
 ;;
 
