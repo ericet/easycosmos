@@ -65,35 +65,32 @@ echo "============================================================"
 echo "输入节点的名称:"
 echo "============================================================"
                 
-read SEINODE
-SEINODE=$SEINODE
-echo 'export SEINODE='${SEINODE} >> $HOME/.profile
+read CARDNODE
+CARDNODE=$CARDNODE
+echo 'export CARDNODE='${CARDNODE} >> $HOME/.profile
 
 echo "============================================================"
 echo "输入钱包名称:"
 echo "============================================================"
                
-read SEIWALLET
-SEIWALLET=$SEIWALLET
-echo 'export SEIWALLET='${SEIWALLET} >> $HOME/.profile
-SEICHAIN=""atlantic-1""
-echo 'export SEICHAIN='${SEICHAIN} >> $HOME/.profile
+read CARDWALLET
+CARDWALLET=$CARDWALLET
+echo 'export CARDWALLET='${CARDWALLET} >> $HOME/.profile
+CARDCHAIN=""atlantic-1""
+echo 'export CARDCHAIN='${CARDCHAIN} >> $HOME/.profile
 source $HOME/.profile
 
 echo "============================================================"
 echo "节点安装开始。。。"
 echo "============================================================"
 
-git clone https://github.com/sei-protocol/sei-chain.git
-cd sei-chain
-git checkout 1.0.7beta-postfix
-make install
+curl https://get.ignite.com/DecentralCardGame/Cardchain@latest! | sudo bash
 
-seid init $SEINODE --chain-id $SEICHAIN
+Cardchain init $CARDNODE --chain-id $CARDCHAIN
 
-seid tendermint unsafe-reset-all --home $HOME/.sei
-rm $HOME/.sei/config/genesis.json
-curl -s https://raw.githubusercontent.com/sei-protocol/testnet/master/sei-incentivized-testnet/genesis.json > ~/.sei/config/genesis.json
+Cardchain tendermint unsafe-reset-all --home $HOME/.Cardchain
+rm $HOME/.Cardchain/config/genesis.json
+wget -O $HOME/.Cardchain/config/genesis.json "https://raw.githubusercontent.com/DecentralCardGame/Testnet1/main/genesis.json"
 
 # config pruning
 indexer="null"
@@ -102,37 +99,37 @@ pruning_keep_recent="100"
 pruning_keep_every="0"
 pruning_interval="10"
 
-sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.sei/config/config.toml
-sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.sei/config/app.toml
-sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.sei/config/app.toml
-sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.sei/config/app.toml
-sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.sei/config/app.toml
+sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.Cardchain/config/config.toml
+sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.Cardchain/config/app.toml
+sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.Cardchain/config/app.toml
+sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.Cardchain/config/app.toml
+sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.Cardchain/config/app.toml
 
-wget -O $HOME/.sei/config/addrbook.json "https://raw.githubusercontent.com/StakeTake/guidecosmos/main/sei/atlantic-1/addrbook.json"
+wget -O $HOME/.Cardchain/config/addrbook.json "https://raw.githubusercontent.com/StakeTake/guidecosmos/main/CrowdControl/Cardchain/addrbook.json"
 SEEDS=""
-PEERS="e3b5da4caea7370cd85d7738eedaec8f56c5be28@144.76.224.246:36656,a37d65086e78865929ccb7388146fb93664223f7@18.144.13.149:26656,8ff4bd654d7b892f33af5a30ada7d8239d6f467b@91.223.3.190:51656,c4e8c9b1005fe6459a922f232dd9988f93c71222@65.108.227.133:26656"; \
-sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.sei/config/config.toml
+PEERS="a89083b131893ca8a379c9b18028e26fa250473c@159.69.11.174:36656"; \
+sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.Cardchain/config/config.toml
 SNAP_RPC="http://sei.stake-take.com:36657"
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
-BLOCK_HEIGHT=$((LATEST_HEIGHT - 1000)); \
+BLOCK_HEIGHT=$((LATEST_HEIGHT - 2000)); \
 TRUST_HASH=$(curl -s "$SNAP_RPC/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
 
 sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ; \
 s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$SNAP_RPC,$SNAP_RPC\"| ; \
 s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
 s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
-s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.sei/config/config.toml
-sudo systemctl restart seid && journalctl -u seid -f -o cat
+s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.Cardchain/config/config.toml
+sudo systemctl restart Cardchain && journalctl -u Cardchain -f -o cat
 
 
-tee $HOME/seid.service > /dev/null <<EOF
+tee $HOME/Cardchain.service > /dev/null <<EOF
 [Unit]
 Description=Sei Testnet Daemon
 After=network.target
 [Service]
 Type=simple
 User=$USER
-ExecStart=$(which seid) start
+ExecStart=$(which Cardchain) start
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
@@ -140,12 +137,12 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
-sudo mv $HOME/seid.service /etc/systemd/system/
+sudo mv $HOME/Cardchain.service /etc/systemd/system/
 
 # start service
 sudo systemctl daemon-reload
-sudo systemctl enable seid
-sudo systemctl restart seid
+sudo systemctl enable Cardchain
+sudo systemctl restart Cardchain
 
 echo "============================================================"
 echo "节点安装成功!"
@@ -159,16 +156,16 @@ echo "============================================================"
 echo "请保存助记词!"
 echo "============================================================"
                
-seid keys add $SEIWALLET
-SEIADDRWALL=$(seid keys show $SEIWALLET -a)
-SEIVAL=$(seid keys show $SEIWALLET --bech val -a)
-echo 'export SEIVAL='${SEIVAL} >> $HOME/.profile
-echo 'export SEIADDRWALL='${SEIADDRWALL} >> $HOME/.profile
+Cardchain keys add $CARDWALLET
+CARDADDRWALL=$(Cardchain keys show $CARDWALLET -a)
+CARDVAL=$(Cardchain keys show $CARDWALLET --bech val -a)
+echo 'export CARDVAL='${CARDVAL} >> $HOME/.profile
+echo 'export CARDADDRWALL='${CARDADDRWALL} >> $HOME/.profile
 source $HOME/.profile
 
 echo "============================================================"
-echo "钱包地址: $SEIADDRWALL"
-echo "验证人地址: $SEIVAL"
+echo "钱包地址: $CARDADDRWALL"
+echo "验证人地址: $CARDVAL"
 echo "============================================================"
                
 break
@@ -179,8 +176,8 @@ echo "============================================================"
 echo "节点catching_up为false的时候继续下一步"
 echo "============================================================"
 echo "节点状态 = $(curl -s localhost:26657/status | jq .result | jq .sync_info)"
-echo "区块高度 = $(seid status 2>&1 | jq ."SyncInfo"."latest_block_height")"
-echo "验证人状态 = $(seid q slashing signing-info $(seid tendermint show-validator))"
+echo "区块高度 = $(Cardchain status 2>&1 | jq ."SyncInfo"."latest_block_height")"
+echo "验证人状态 = $(Cardchain q slashing signing-info $(Cardchain tendermint show-validator))"
 echo "============================================================"
 break
 ;;
@@ -191,16 +188,16 @@ echo "节点状态为false的时候继续下一步!"
 echo "节点状态 = $(curl -s localhost:26657/status)"
 echo "============================================================"
                
-seid tx staking create-validator \
+Cardchain tx staking create-validator \
   --amount 1000000usei \
-  --from $SEIWALLET \
+  --from $CARDWALLET \
   --commission-max-change-rate "0.05" \
   --commission-max-rate "0.20" \
   --commission-rate "0.05" \
   --min-self-delegation "1" \
-  --pubkey $(seid tendermint show-validator) \
-  --moniker $SEINODE \
-  --chain-id $SEICHAIN \
+  --pubkey $(Cardchain tendermint show-validator) \
+  --moniker $CARDNODE \
+  --chain-id $CARDCHAIN \
   --gas 300000 \
   -y
 break
@@ -208,41 +205,42 @@ break
 
 "钱包余额")
 echo "============================================================"
-echo "节点名称: $SEINODE"
-echo "钱包地址: $SEIADDRWALL" 
-echo "钱包余额: $(seid query bank balances $SEIADDRWALL)"
+echo "节点名称: $CARDNODE"
+echo "钱包地址: $CARDADDRWALL" 
+echo "钱包余额: $(Cardchain query bank balances $CARDADDRWALL)"
 echo "============================================================"
 break
 ;;
 
 "查看验证人") 
 echo "============================================================"
-echo "Account request: $(seid q auth account $(seid keys show $SEIADDRWALL -a) -o text)"
-echo "Validator info: $(seid q staking validator $SEIVAL)"
+echo "Account request: $(Cardchain q auth account $(Cardchain keys show $CARDADDRWALL -a) -o text)"
+echo "Validator info: $(Cardchain q staking validator $CARDVAL)"
 echo "============================================================"
 break
 ;;
 
 "水龙头获得测试币")
-request=$request
-echo "============================================================"
-echo "进入Sei Discord https://discord.gg/tvJpXe4z 的 #altantic-1-faucet 频道"
-echo "============================================================"
-echo -e "复制粘贴 \033[32m !faucet $SEIADDRWALL \033[37m"
-echo "============================================================"
+echo "========================================================================================================================"
+echo 
+echo KEY=$(Cardchain keys show $WALLETNAME -a)
+echo curl -X POST https://cardchain.crowdcontrol.network/faucet/ -d "{\"address\": \"$KEY\"}"
+echo sleep 60
+echo "========================================================================================================================"
+
 break
 ;;
 
 "节点日志")
-journalctl -u seid -f -o cat
+journalctl -u Cardchain -f -o cat
 break
 ;;
 
 "删除节点")
-systemctl stop seid
-systemctl disable seid
-rm /etc/systemd/system/seid.service
-rm -r .sei sei-chain
+systemctl stop Cardchain
+systemctl disable Cardchain
+rm /etc/systemd/system/Cardchain.service
+rm -r .Cardchain
 break
 ;;
 
