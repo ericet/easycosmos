@@ -109,7 +109,7 @@ sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $
 
 wget -O $HOME/.ollo/config/addrbook.json "https://raw.githubusercontent.com/OllO-Station/ollo/master/networks/ollo-testnet-0/addrbook.json"
 SEEDS=""
-PEERS="06658ccd5c119578fb662633234a2ef154881b94@18.144.61.148"; \
+PEERS=""; \
 sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.ollo/config/config.toml
 SNAP_RPC="http://ollo.stake-take.com:16657"
 LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \

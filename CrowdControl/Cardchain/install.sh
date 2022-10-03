@@ -189,7 +189,7 @@ echo "节点状态 = $(curl -s localhost:26657/status)"
 echo "============================================================"
                
 Cardchain tx staking create-validator \
-  --amount 1000000usei \
+  --amount 1000000ucredits \
   --from $CARDWALLET \
   --commission-max-change-rate "0.05" \
   --commission-max-rate "0.20" \
