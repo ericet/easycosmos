@@ -15,7 +15,7 @@ source ~/.profile
 PS3='选择一个操作 '
 options=(
 "安装必要的环境" 
-"安装节点(快速同步)" 
+"安装节点" 
 "创建钱包"
 "节点日志" 
 "查看节点状态" 
@@ -60,7 +60,7 @@ echo "============================================================"
 break
 ;;
             
-"安装节点(快速同步)")
+"安装节点")
 echo "============================================================"
 echo "输入节点的名称:"
 echo "============================================================"
@@ -90,7 +90,7 @@ Cardchain init $CARDNODE --chain-id $CARDCHAIN
 
 Cardchain tendermint unsafe-reset-all --home $HOME/.Cardchain
 rm $HOME/.Cardchain/config/genesis.json
-wget -O $HOME/.Cardchain/config/genesis.json "https://raw.githubusercontent.com/DecentralCardGame/Testnet1/main/genesis.json"
+wget -qO $HOME/.Cardchain/config/genesis.json "https://raw.githubusercontent.com/DecentralCardGame/Testnet/main/genesis.json"
 
 # config pruning
 indexer="null"
@@ -105,26 +105,17 @@ sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_rec
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.Cardchain/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.Cardchain/config/app.toml
 
-wget -O $HOME/.Cardchain/config/addrbook.json "https://raw.githubusercontent.com/StakeTake/guidecosmos/main/CrowdControl/Cardchain/addrbook.json"
 SEEDS=""
-PEERS="a89083b131893ca8a379c9b18028e26fa250473c@159.69.11.174:36656"; \
+PEERS="752cfbb39a24007f7316725e7bbc34c845e7c5f1@45.136.28.158:26658"; \
 sed -i.bak -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.Cardchain/config/config.toml
-SNAP_RPC="http://sei.stake-take.com:36657"
-LATEST_HEIGHT=$(curl -s $SNAP_RPC/block | jq -r .result.block.header.height); \
-BLOCK_HEIGHT=$((LATEST_HEIGHT - 2000)); \
-TRUST_HASH=$(curl -s "$SNAP_RPC/block?height=$BLOCK_HEIGHT" | jq -r .result.block_id.hash)
 
-sed -i.bak -E "s|^(enable[[:space:]]+=[[:space:]]+).*$|\1true| ; \
-s|^(rpc_servers[[:space:]]+=[[:space:]]+).*$|\1\"$SNAP_RPC,$SNAP_RPC\"| ; \
-s|^(trust_height[[:space:]]+=[[:space:]]+).*$|\1$BLOCK_HEIGHT| ; \
-s|^(trust_hash[[:space:]]+=[[:space:]]+).*$|\1\"$TRUST_HASH\"| ; \
-s|^(seeds[[:space:]]+=[[:space:]]+).*$|\1\"\"|" $HOME/.Cardchain/config/config.toml
+
 sudo systemctl restart Cardchain && journalctl -u Cardchain -f -o cat
 
 
 tee $HOME/Cardchain.service > /dev/null <<EOF
 [Unit]
-Description=Sei Testnet Daemon
+Description=Cardchain Testnet Daemon
 After=network.target
 [Service]
 Type=simple
