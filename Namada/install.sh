@@ -20,12 +20,13 @@ select opt in "${options[@]}"
                    case $opt in
                         
 "安装/更新程序")
+sudo apt install jq -y
 cd $HOME
 rm -rf namada-*
 APP_VERSION=$(curl -s https://api.github.com/repos/anoma/namada-trusted-setup/releases/latest | jq -r ".tag_name" | sed "s/runtime-/""/g")
 wget -O namada-ts https://github.com/anoma/namada-trusted-setup/releases/download/${APP_VERSION}/namada-ts-linux-${APP_VERSION}
 chmod +x namada-*
-mv namada-* /usr/local/bin/
+sudo mv namada-* /usr/local/bin/
 
 echo "============================================================"
 echo "安装/更新成功!"
