@@ -23,6 +23,8 @@ options=(
 "钱包余额" 
 "创建验证人" 
 "查看验证人"
+"设置Oracle"
+"查看Oracle日志"
 "退出")
 select opt in "${options[@]}"
                do
@@ -221,6 +223,60 @@ echo "进入Nibid Discord https://discord.gg/nibiru 的 #faucet 频道"
 echo "============================================================"
 echo -e "复制粘贴 \033[32m \$request $ADDRWALL\033[37m"
 echo "============================================================"
+break
+;;
+
+"设置Oracle")
+curl -s https://get.nibiru.fi/pricefeeder! | bash
+echo "============================================================"
+echo "输入你的验证人助记词:"
+echo "============================================================"
+               
+read FEEDER_MNEMONIC
+FEEDER_MNEMONIC=$FEEDER_MNEMONIC
+export FEEDER_MNEMONIC=$FEEDER_MNEMONIC
+export CHAIN_ID="nibiru-itn-1"
+export GRPC_ENDPOINT="localhost:44090"
+export WEBSOCKET_ENDPOINT="ws://localhost:44657/websocket"
+export EXCHANGE_SYMBOLS_MAP='{ "bitfinex": { "ubtc:uusd": "tBTCUSD", "ueth:uusd": "tETHUSD", "uusdt:uusd": "tUSTUSD" }, "binance": { "ubtc:uusd": "BTCUSD", "ueth:uusd": "ETHUSD", "uusdt:uusd": "USDTUSD", "uusdc:uusd": "USDCUSD", "uatom:uusd": "ATOMUSD", "ubnb:uusd": "BNBUSD", "uavax:uusd": "AVAXUSD", "usol:uusd": "SOLUSD", "uada:uusd": "ADAUSD", "ubtc:unusd": "BTCUSD", "ueth:unusd": "ETHUSD", "uusdt:unusd": "USDTUSD", "uusdc:unusd": "USDCUSD", "uatom:unusd": "ATOMUSD", "ubnb:unusd": "BNBUSD", "uavax:unusd": "AVAXUSD", "usol:unusd": "SOLUSD", "uada:unusd": "ADAUSD" } }'
+
+
+sudo tee /etc/systemd/system/pricefeeder.service<<EOF
+[Unit]
+Description=Nibiru Pricefeeder
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=$USER
+ExecStart=/usr/local/bin/pricefeeder
+Restart=on-failure
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+PermissionsStartOnly=true
+LimitNOFILE=65535
+Environment=CHAIN_ID='$CHAIN_ID'
+Environment=GRPC_ENDPOINT='$GRPC_ENDPOINT'
+Environment=WEBSOCKET_ENDPOINT='$WEBSOCKET_ENDPOINT'
+Environment=EXCHANGE_SYMBOLS_MAP='$EXCHANGE_SYMBOLS_MAP'
+Environment=FEEDER_MNEMONIC='$FEEDER_MNEMONIC'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+sudo systemctl daemon-reload && \
+sudo systemctl enable pricefeeder && \
+sudo systemctl start pricefeeder
+
+
+break
+;;
+
+"查看Oracle日志")
+sudo journalctl -fu pricefeeder
 break
 ;;
 
