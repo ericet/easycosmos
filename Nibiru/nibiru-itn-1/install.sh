@@ -25,6 +25,7 @@ options=(
 "查看验证人"
 "设置Oracle"
 "查看Oracle日志"
+"作弊通关模式"
 "退出")
 select opt in "${options[@]}"
                do
@@ -290,6 +291,81 @@ systemctl stop nibid
 systemctl disable nibid
 rm /etc/systemd/system/nibid.service
 rm -r .nibid nibiru
+break;
+;;
+
+"作弊通关模式"）
+echo "============================================================"
+echo "这个模式不需要你运行节点，直接上线验证人，但是这个验证人不能活跃"
+echo "============================================================"
+echo "============================================================"
+echo "输入节点的名称:"
+echo "============================================================"
+                
+read NODENAME
+NODENAME=$NODENAME
+echo 'export NODENAME='${NODENAME} >> $HOME/.profile
+
+echo "============================================================"
+echo "输入钱包名称:"
+echo "============================================================"
+               
+read WALLET
+WALLET=$WALLET
+echo 'export WALLET='${WALLET} >> $HOME/.profile
+CHAIN="nibiru-itn-1"
+echo 'export CHAIN='${CHAIN} >> $HOME/.profile
+source $HOME/.profile
+
+cd $HOME
+rm -rf nibiru
+curl -s https://get.nibiru.fi/@v0.19.2! | bash
+
+
+nibid init $NODENAME --chain-id $CHAIN
+nibid config chain-id $CHAIN
+nibid config node https://rpc.itn-1.nibiru.fi
+
+echo "============================================================"
+echo "请保存助记词!"
+echo "============================================================"
+               
+nibid keys add $WALLET
+ADDRWALL=$(nibid keys show $WALLET -a)
+VAL=$(nibid keys show $WALLET --bech val -a)
+echo 'export VAL='${VAL} >> $HOME/.profile
+echo 'export ADDRWALL='${ADDRWALL} >> $HOME/.profile
+source $HOME/.profile
+
+echo "============================================================"
+echo "钱包地址: $ADDRWALL"
+echo "验证人地址: $VAL"
+echo "============================================================"
+
+curl -X POST -d '{"address": "'"$ADDRWALL"'", "coins": ["11000000unibi","100000000unusd","100000000uusdt"]}' https://faucet.itn-1.nibiru.fi/
+echo "============================================================"
+echo "如果上面请求失败，可以去discord频道获得测试币"
+echo "进入Nibid Discord https://discord.gg/nibiru 的 #faucet 频道"
+echo "============================================================"
+echo -e "复制粘贴 \033[32m \$request $ADDRWALL\033[37m"
+echo "============================================================"
+
+echo "获得测试币后任意输入继续"
+read RANDOM
+
+nibid tx staking create-validator \
+  --amount 1000000unibi \
+  --from $WALLET \
+  --commission-max-change-rate "0.05" \
+  --commission-max-rate "0.20" \
+  --commission-rate "0.05" \
+  --min-self-delegation "1" \
+  --pubkey $(nibid tendermint show-validator) \
+  --moniker $NODENAME \
+  --chain-id $CHAIN \
+  --fees 500unibi \
+  -y
+break
 ;;
 
 "退出")
