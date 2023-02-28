@@ -324,7 +324,7 @@ curl -s https://get.nibiru.fi/@v0.19.2! | bash
 
 nibid init $NODENAME --chain-id $CHAIN
 nibid config chain-id $CHAIN
-nibid config node https://rpc.itn-1.nibiru.fi
+nibid config node https://rpc.itn-1.nibiru.fi:443
 
 echo "============================================================"
 echo "请保存助记词!"
