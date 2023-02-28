@@ -194,7 +194,7 @@ nibid tx staking create-validator \
   --pubkey $(nibid tendermint show-validator) \
   --moniker $NODENAME \
   --chain-id $CHAIN \
-  --fees 500unibi \
+  --fees 5000unibi \
   -y
 break
 ;;
@@ -363,7 +363,7 @@ nibid tx staking create-validator \
   --pubkey $(nibid tendermint show-validator) \
   --moniker $NODENAME \
   --chain-id $CHAIN \
-  --fees 500unibi \
+  --fees 5000unibi \
   -y
 break
 ;;
