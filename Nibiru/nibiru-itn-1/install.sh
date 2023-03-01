@@ -294,7 +294,8 @@ rm -r .nibid nibiru
 break;
 ;;
 
-"作弊通关模式)
+"作弊通关模式")
+
 echo "============================================================"
 echo "这个模式不需要你运行节点，直接上线验证人，但是这个验证人不能活跃"
 echo "============================================================"
@@ -324,7 +325,7 @@ curl -s https://get.nibiru.fi/@v0.19.2! | bash
 
 nibid init $NODENAME --chain-id $CHAIN
 nibid config chain-id $CHAIN
-nibid config node https://rpc.itn-1.nibiru.fi:443
+nibid config node https://rpc.itn-1.nibiru.fi
 
 echo "============================================================"
 echo "请保存助记词!"
@@ -363,7 +364,7 @@ nibid tx staking create-validator \
   --pubkey $(nibid tendermint show-validator) \
   --moniker $NODENAME \
   --chain-id $CHAIN \
-  --fees 5000unibi \
+  --fees 500unibi \
   -y
 break
 ;;
